@@ -142,6 +142,44 @@ def compute_density_altitude(pressure_alt_ft, oat_c):
     return pressure_alt_ft + (120 * temp_dev_c)
 
 
+def compute_energy_state(altitude_ft, ias_kt):
+    """Phase 5V — Specific energy decomposition of the current flight state.
+
+    Total specific energy is E = h + V²/(2g) (in feet of altitude-equivalent),
+    a.k.a. "energy height" in the Rutowski 1954 / Boyd 1966 formulation. It
+    splits cleanly into:
+        PE = h          (altitude → all potential energy)
+        KE = V²/(2g)    (kinematic energy in altitude-equivalent units)
+
+    This is the math underneath the FAA AFH Ch 4 (2021) "energy management"
+    pedagogy — throttle adds total E, elevator redistributes between KE/PE.
+
+    Args:
+        altitude_ft: current altitude in feet MSL
+        ias_kt: current indicated airspeed in knots
+
+    Returns:
+        dict with keys:
+            ke_ft         — kinetic energy expressed as altitude-equivalent
+            pe_ft         — potential energy (altitude itself)
+            e_total_ft    — total specific energy
+            ke_fraction   — KE / E_total, in [0, 1]
+    """
+    altitude_ft = altitude_ft or 0
+    ias_kt = ias_kt or 0
+    v_fps = ias_kt * KTS_TO_FPS
+    ke_ft = (v_fps * v_fps) / (2.0 * g)
+    pe_ft = float(altitude_ft)
+    e_total_ft = ke_ft + pe_ft
+    ke_fraction = (ke_ft / e_total_ft) if e_total_ft > 0 else 0.0
+    return {
+        "ke_ft":       ke_ft,
+        "pe_ft":       pe_ft,
+        "e_total_ft":  e_total_ft,
+        "ke_fraction": ke_fraction,
+    }
+
+
 def compute_pressure_altitude(field_elev_ft, altimeter_inhg):
     """
     Compute pressure altitude from field elevation and altimeter setting.

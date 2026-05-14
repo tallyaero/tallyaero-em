@@ -40,49 +40,75 @@ def edit_aircraft_layout():
         dcc.Store(id="stored-other-limits", data={}),
         dcc.Store(id="stored-oei-performance", data=[]),
 
-        # Hidden dropdown for callback compatibility
-        dcc.Dropdown(id="aircraft-search", style={"display": "none"}),
-
-        # Header
+        # Phase 5T: top strip — chip-style actions consistent with the main
+        # page shell. Banner-header + disclaimer-banner-small removed (the
+        # legal-disclaimer modal carries the educational-use disclaimer).
         html.Div([
+            # Left cluster: brand + Back + currently editing
             html.Div([
-                html.Img(src="/assets/logo.png", className="banner-logo")
-            ], className="banner-inner")
-        ], className="banner-header"),
+                html.Span("TallyAero EM", className="top-strip-brand"),
+                html.Button(
+                    [html.Span("BACK", className="chip-prefix"),
+                     html.Span("EM Diagram", className="chip-label")],
+                    id="back-button", n_clicks=0,
+                    className="env-chip", type="button",
+                    title="Return to the EM Diagram (shortcut: Esc)",
+                    **{"aria-label": "Return to main EM Diagram page"},
+                ),
+                html.Div(id="edit-page-title", className="edit-page-title"),
+            ], className="top-strip-left"),
 
-        # Disclaimer
-        html.Div([
-            html.Div(
-                "This tool creates aircraft performance profiles based on user input. Values are not guaranteed to be accurate or FAA-approved. Use for educational purposes only.",
-                className="disclaimer-banner-small"
-            )
-        ], style={"marginBottom": "16px"}),
-
-        # Quick Links Bar
-        html.Div([
-            html.A("EM Diagram", href="/", className="quick-link link-orange"),
-            html.Span("|", className="separator"),
-            html.A("Report Issue", href="https://forms.gle/1xP29PwFze5MHCTZ7", target="_blank", className="quick-link link-danger"),
-            html.Span("|", className="separator"),
-            html.A("Contact AeroEdge", href="https://forms.gle/AqS1uuTgcY6sRHob9", target="_blank", className="quick-link link-blue"),
-            html.Span("|", className="separator"),
-            html.A("Maneuver Overlay Tool", href="https://overlay.flyaeroedge.com", target="_blank", className="quick-link link-orange"),
-        ], className="quick-links-bar-slim"),
+            # Right cluster: Save / Duplicate / Clear
+            html.Div([
+                html.Button(
+                    [html.Span("SAVE", className="chip-prefix"),
+                     html.Span("Aircraft", className="chip-label")],
+                    id="save-aircraft-button", n_clicks=0,
+                    className="env-chip rail-drawer-trigger", type="button",
+                    title="Validate + download the aircraft JSON",
+                    **{"aria-label": "Save the aircraft profile to a JSON file"},
+                ),
+                html.Button(
+                    [html.Span("COPY", className="chip-prefix"),
+                     html.Span("Duplicate", className="chip-label")],
+                    id="duplicate-aircraft-button", n_clicks=0,
+                    className="env-chip", type="button",
+                    title="Duplicate the currently-loaded aircraft as a new profile",
+                    **{"aria-label": "Duplicate the current aircraft as a new profile"},
+                ),
+                html.Button(
+                    [html.Span("CLEAR", className="chip-prefix"),
+                     html.Span("Reset Form", className="chip-label")],
+                    id="new-aircraft-button", n_clicks=0,
+                    className="env-chip", type="button",
+                    title="Clear all fields and start a blank profile",
+                    **{"aria-label": "Clear all form fields"},
+                ),
+            ], className="top-strip-right"),
+        ], className="top-strip edit-page-top-strip"),
 
         # Main content
         html.Div([
-            # Top bar with back button and title
-            html.Div([
-                html.Button("Back", id="back-button", n_clicks=0, className="btn-secondary-sm"),
-                html.H2("Create Aircraft Profile", className="edit-page-title"),
-            ], className="edit-top-bar"),
-
-            # Action buttons and status
+            # Aircraft picker — primary CTA, no longer hidden
             html.Div([
                 html.Div([
-                    html.Button("Clear", id="new-aircraft-button", n_clicks=0, className="btn-secondary-sm"),
-                    html.Button("Save Aircraft", id="save-aircraft-button", n_clicks=0, className="btn-primary-sm"),
-                ], className="edit-action-buttons"),
+                    html.Label("Edit existing aircraft", className="edit-section-label"),
+                    html.Div(id="edit-aircraft-helper",
+                             className="edit-section-helper",
+                             children="Pick any of the 110 aircraft to load its profile into the form."),
+                ], className="edit-section-header"),
+                dcc.Dropdown(
+                    id="aircraft-search",
+                    options=[],  # populated by callback below
+                    placeholder="Search aircraft to edit…",
+                    searchable=True,
+                    clearable=True,
+                    className="edit-aircraft-search",
+                ),
+            ], className="edit-aircraft-search-section"),
+
+            # Status messages (search result + save status)
+            html.Div([
                 html.Div(id="search-result", className="edit-status-msg"),
                 html.Div(id="save-status", className="edit-status-msg"),
             ], className="edit-action-bar"),
@@ -488,4 +514,4 @@ def edit_aircraft_layout():
 
         # Footer spacing
         html.Div(style={"height": "40px"}),
-    ], className="edit-page-container")
+    ], className="edit-page-container desktop-shell")

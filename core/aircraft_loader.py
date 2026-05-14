@@ -9,13 +9,20 @@ access to the cached data.
 import os
 import json
 import sys
-from .constants import DEBUG_LOG
+from .logging_setup import get_logger
+
+log = get_logger(__name__)
 
 
 def dprint(*args, **kwargs):
-    """Debug print that can be globally toggled."""
-    if DEBUG_LOG:
-        print(*args, **kwargs)
+    """Back-compat shim. Routes to the `tallyaero.em` logger at DEBUG level.
+
+    The original module had ~40 `dprint()` call sites scattered through app.py
+    that toggle via `DEBUG_LOG`. Rather than touch every site, we route them
+    here. Set `TALLYAERO_LOG=DEBUG` in the environment to see them.
+    """
+    msg = " ".join(str(a) for a in args)
+    log.debug(msg)
 
 
 def resource_path(filename):
@@ -42,7 +49,7 @@ def load_aircraft_data_from_folder(folder_name="aircraft_data"):
     aircraft_data = {}
 
     if not os.path.exists(folder_path):
-        print(f"[WARNING] Aircraft data folder not found: {folder_path}")
+        log.warning("Aircraft data folder not found: %s", folder_path)
         return aircraft_data
 
     for filename in os.listdir(folder_path):
@@ -54,7 +61,7 @@ def load_aircraft_data_from_folder(folder_name="aircraft_data"):
                     name = os.path.splitext(filename)[0].replace("_", " ")
                     aircraft_data[name] = data
                 except Exception as e:
-                    dprint(f"[ERROR] Failed to load {filename}: {e}")
+                    log.error("Failed to load %s: %s", filename, e)
 
     return aircraft_data
 
@@ -132,7 +139,7 @@ def load_airport_data(filename="airports/airports.json"):
     filepath = os.path.join(base_dir, filename)
 
     if not os.path.exists(filepath):
-        print(f"[WARNING] Airport data file not found: {filepath}")
+        log.warning("Airport data file not found: %s", filepath)
         return []
 
     try:
@@ -140,20 +147,46 @@ def load_airport_data(filename="airports/airports.json"):
             airports = json.load(f)
         return airports
     except Exception as e:
-        print(f"[ERROR] Failed to load airports: {e}")
+        log.error("Failed to load airports: %s", e)
         return []
 
 
 def get_airport_options(airports):
     """
     Convert airport list to dropdown options format.
-    Format: "ICAO - Name (elev ft)"
+
+    Label is rich enough that Dash's built-in substring search matches by
+    ident, name, city, state/country, and IATA:
+        "KAUS — Austin Bergstrom Intl Airport · Austin, TX · 541 ft · IATA AUS"
+        "EGLL — London Heathrow Airport · London, GB · 83 ft · IATA LHR"
+        "00AA — Aero B Ranch Airport · Cimarron, KS · 3,435 ft"
     """
     options = []
     for ap in airports:
-        elev = ap.get("elevation_ft", 0)
-        label = f"{ap['id']} - {ap['name']} ({elev} ft)"
-        options.append({"label": label, "value": ap["id"]})
+        ident = ap["id"]
+        name = ap.get("name") or ""
+
+        # Place: "city, state" for US, "city, country" otherwise. Skip parts
+        # that are missing rather than emit lonely commas.
+        city = ap.get("municipality")
+        state = ap.get("state")             # NASR US only — 2-letter
+        country = ap.get("country")         # ISO 2-letter
+        if state:
+            place = f"{city}, {state}" if city else state
+        elif country == "US":
+            place = city or ""
+        else:
+            place = f"{city}, {country}" if city else (country or "")
+
+        elev = ap.get("elevation_ft")
+        elev_part = f"{elev:,} ft" if isinstance(elev, (int, float)) else ""
+
+        iata = ap.get("iata")
+        iata_part = f"IATA {iata}" if iata and iata != ident else ""
+
+        parts = [f"{ident} — {name}".strip(" —"), place, elev_part, iata_part]
+        label = " · ".join(p for p in parts if p)
+        options.append({"label": label, "value": ident})
     return options
 
 
@@ -175,16 +208,61 @@ def get_airport_by_id(airports, airport_id):
 
 
 # =============================================================================
-# BOOT-TIME LOADING
+# DATA INITIALIZATION
 # =============================================================================
-print("[BOOT] Loading aircraft data from folder once...")
-AIRCRAFT_DATA = load_aircraft_data_from_folder()
-print(f"[BOOT] Loaded {len(AIRCRAFT_DATA)} aircraft")
+# Data loading is explicit. `init_data()` is the public API. By default the
+# module auto-calls it at import time so existing `from core import AIRCRAFT_DATA`
+# patterns continue to work; set `TALLYAERO_NO_AUTO_INIT=1` in the environment
+# to skip this (used by tests that want to load a curated subset).
+#
+# Phase 1 will move the auto-init call out of this module and into app.py.
 
-print("[BOOT] Loading airport data...")
-AIRPORT_DATA = load_airport_data()
-AIRPORT_OPTIONS = get_airport_options(AIRPORT_DATA)
-print(f"[BOOT] Loaded {len(AIRPORT_DATA)} airports")
-
-# Create the dynamic wrapper
+AIRCRAFT_DATA: dict = {}
+AIRPORT_DATA: list = []
+AIRPORT_OPTIONS: list = []
 aircraft_data = DynamicAircraftData(AIRCRAFT_DATA)
+
+
+def init_data(
+    aircraft_folder: str = "aircraft_data",
+    airports_path: str = "airports/airports.json",
+) -> tuple[dict, list, list, DynamicAircraftData]:
+    """Populate the module-level data caches. Idempotent within a process
+    when called with the same args; mutates the globals in place.
+
+    Args:
+        aircraft_folder: Path (relative to repo root) for aircraft JSONs.
+        airports_path:   Path (relative to repo root) for airports JSON.
+
+    Returns:
+        (AIRCRAFT_DATA, AIRPORT_DATA, AIRPORT_OPTIONS, aircraft_data) —
+        references to the populated globals, for callers that prefer
+        explicit handoffs over module-level imports.
+    """
+    global AIRCRAFT_DATA, AIRPORT_DATA, AIRPORT_OPTIONS, aircraft_data
+
+    log.info("Loading aircraft data from folder once...")
+    new_aircraft = load_aircraft_data_from_folder(aircraft_folder)
+    # In-place update so existing `from core import AIRCRAFT_DATA` references
+    # still see the new content (rebinding the module global would NOT update
+    # already-imported names).
+    AIRCRAFT_DATA.clear()
+    AIRCRAFT_DATA.update(new_aircraft)
+    log.info("Loaded %d aircraft", len(AIRCRAFT_DATA))
+
+    log.info("Loading airport data...")
+    new_airports = load_airport_data(airports_path)
+    AIRPORT_DATA.clear()
+    AIRPORT_DATA.extend(new_airports)
+    AIRPORT_OPTIONS.clear()
+    AIRPORT_OPTIONS.extend(get_airport_options(AIRPORT_DATA))
+    log.info("Loaded %d airports", len(AIRPORT_DATA))
+
+    # `aircraft_data` is a wrapper around AIRCRAFT_DATA; since we mutate
+    # in place above, no rebinding needed.
+    return AIRCRAFT_DATA, AIRPORT_DATA, AIRPORT_OPTIONS, aircraft_data
+
+
+# Backward-compat auto-init. Phase 1 makes this explicit from app.py.
+if not os.environ.get("TALLYAERO_NO_AUTO_INIT"):
+    init_data()

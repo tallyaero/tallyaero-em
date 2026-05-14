@@ -185,3 +185,6 @@ airports/*.bak-pre-*
 # Build artefacts
 dist/
 build/
+
+# Cross-product strategy docs (private)
+_ecosystem/

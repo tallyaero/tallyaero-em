@@ -4,6 +4,13 @@
 Core module containing physics calculations, constants, and data loading.
 """
 
+from .logging_setup import setup_logging, get_logger, log_feature
+
+# Initialize logging on first import of the core package so that any
+# subsequent module-level log calls (e.g., aircraft_loader boot messages) are
+# routed through the configured handler. Idempotent.
+setup_logging()
+
 from .constants import (
     DEBUG_LOG,
     DEFAULT_PASSENGER_WEIGHT,
@@ -41,6 +48,7 @@ from .calculations import (
     compute_air_density,
     compute_density_altitude,
     compute_pressure_altitude,
+    compute_energy_state,
     compute_true_airspeed,
     # Turn physics
     compute_load_factor,
@@ -54,9 +62,14 @@ from .calculations import (
     compute_stall_ias_at_turn_rate,
 )
 
+from .vmca import calculate_vmca
+from .vyse import calculate_dynamic_vyse
+from .plotly_themes import get_palette as get_chart_palette
+
 from .aircraft_loader import (
     AIRCRAFT_DATA,
     aircraft_data,
+    init_data,
     load_aircraft_data_from_folder,
     extract_vmca_value,
     resource_path,
