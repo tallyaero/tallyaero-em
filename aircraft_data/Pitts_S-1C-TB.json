@@ -29,14 +29,14 @@
         1150
       ],
       "speeds": [
-        56,
-        58,
-        61
+        49,
+        50,
+        53
       ]
     }
   },
   "single_engine_limits": {
-    "best_glide": 70,
+    "best_glide": 61,
     "best_glide_ratio": 6.2
   },
   "engine_options": {
@@ -49,8 +49,8 @@
     }
   },
   "max_altitude": 18000,
-  "Vne": 174,
-  "Vno": 139,
+  "Vne": 151,
+  "Vno": 121,
   "Vfe": {},
   "CL_max": {
     "clean": 1.35
@@ -81,6 +81,13 @@
   "fuel_weight_per_gal": 6,
   "prop_thrust_decay": {
     "T_static_factor": 2.4,
-    "V_max_kts": 155
-  }
+    "V_max_kts": 135
+  },
+  "vspeeds_published_units": "MPH",
+  "sources": [
+    {
+      "publication": "Phase 2i unit-canonicalization: MPH \u2192 KIAS (\u00f7 1.15078). Research source: Pitts S-1C variant (TB = taper-bottom wing modification). Confidence: medium.",
+      "retrieved": "2026-05-14"
+    }
+  ]
 }

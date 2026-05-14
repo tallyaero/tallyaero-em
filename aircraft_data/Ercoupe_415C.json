@@ -7,41 +7,96 @@
   "CD0": 0.03,
   "e": 0.75,
   "configuration_options": {
-    "flaps": ["clean", "takeoff", "landing"]
+    "flaps": [
+      "clean",
+      "takeoff",
+      "landing"
+    ]
   },
   "G_limits": {
     "normal": {
-      "clean": { "positive": 3.8, "negative": -1.5 },
-      "takeoff": { "positive": 2.0, "negative": -1.0 },
-      "landing": { "positive": 2.0, "negative": -1.0 }
+      "clean": {
+        "positive": 3.8,
+        "negative": -1.5
+      },
+      "takeoff": {
+        "positive": 2.0,
+        "negative": -1.0
+      },
+      "landing": {
+        "positive": 2.0,
+        "negative": -1.0
+      }
     },
     "utility": {
-      "clean": { "positive": 4.4, "negative": -1.5 },
-      "takeoff": { "positive": 2.2, "negative": -1.0 },
-      "landing": { "positive": 2.2, "negative": -1.0 }
+      "clean": {
+        "positive": 4.4,
+        "negative": -1.5
+      },
+      "takeoff": {
+        "positive": 2.2,
+        "negative": -1.0
+      },
+      "landing": {
+        "positive": 2.2,
+        "negative": -1.0
+      }
     },
     "aerobatic": {
-      "clean": { "positive": 6.0, "negative": -1.5 },
-      "takeoff": { "positive": 0.0, "negative": -1.0 },
-      "landing": { "positive": 0.0, "negative": -1.0 }
+      "clean": {
+        "positive": 6.0,
+        "negative": -1.5
+      },
+      "takeoff": {
+        "positive": 0.0,
+        "negative": -1.0
+      },
+      "landing": {
+        "positive": 0.0,
+        "negative": -1.0
+      }
     }
   },
   "stall_speeds": {
     "clean": {
-      "weights": [1000, 1150, 1260],
-      "speeds": [45, 48, 50]
+      "weights": [
+        1000,
+        1150,
+        1260
+      ],
+      "speeds": [
+        39,
+        42,
+        43
+      ]
     },
     "takeoff": {
-      "weights": [1000, 1150, 1260],
-      "speeds": [44, 47, 49]
+      "weights": [
+        1000,
+        1150,
+        1260
+      ],
+      "speeds": [
+        38,
+        41,
+        43
+      ]
     },
     "landing": {
-      "weights": [1000, 1150, 1260],
-      "speeds": [43, 46, 48]
+      "weights": [
+        1000,
+        1150,
+        1260
+      ],
+      "speeds": [
+        37,
+        40,
+        42
+      ]
     }
   },
   "single_engine_limits": {
-    "best_glide": 60,
+    "best_glide": 52,
     "best_glide_ratio": 9.0
   },
   "engine_options": {
@@ -54,11 +109,11 @@
     }
   },
   "max_altitude": 13000,
-  "Vne": 140,
-  "Vno": 115,
+  "Vne": 122,
+  "Vno": 100,
   "Vfe": {
-    "takeoff": 100,
-    "landing": 100
+    "takeoff": 87,
+    "landing": 87
   },
   "CL_max": {
     "clean": 1.4,
@@ -66,19 +121,38 @@
     "landing": 1.8
   },
   "arcs": {
-    "white": [43, 100],
-    "green": [45, 115],
-    "yellow": [115, 140],
-    "red": 140
+    "white": [
+      37,
+      87
+    ],
+    "green": [
+      39,
+      100
+    ],
+    "yellow": [
+      100,
+      122
+    ],
+    "red": 122
   },
   "empty_weight": 800,
   "max_weight": 1260,
   "seats": 2,
-  "cg_range": [16.01, 21.01],
+  "cg_range": [
+    16.01,
+    21.01
+  ],
   "fuel_capacity_gal": 24,
   "fuel_weight_per_gal": 6.0,
   "prop_thrust_decay": {
     "T_static_factor": 2.6,
-    "V_max_kts": 140
-  }
+    "V_max_kts": 122
+  },
+  "vspeeds_published_units": "MPH",
+  "sources": [
+    {
+      "publication": "Phase 2i unit-canonicalization: MPH \u2192 KIAS (\u00f7 1.15078). Research source: Ercoupe 415-C Operator Handbook; Ercoupe checklist (Vne 144 mph / 125 kts). Confidence: high.",
+      "retrieved": "2026-05-14"
+    }
+  ]
 }

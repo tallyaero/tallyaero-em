@@ -8,37 +8,92 @@
   "CD0": 0.03,
   "e": 0.82,
   "configuration_options": {
-    "flaps": ["clean", "takeoff", "landing"]
+    "flaps": [
+      "clean",
+      "takeoff",
+      "landing"
+    ]
   },
   "G_limits": {
     "normal": {
-      "clean": { "positive": 3.8, "negative": -1.5 },
-      "takeoff": { "positive": 2.0, "negative": -1.0 },
-      "landing": { "positive": 2.0, "negative": -1.0 }
+      "clean": {
+        "positive": 3.8,
+        "negative": -1.5
+      },
+      "takeoff": {
+        "positive": 2.0,
+        "negative": -1.0
+      },
+      "landing": {
+        "positive": 2.0,
+        "negative": -1.0
+      }
     },
     "utility": {
-      "clean": { "positive": 4.4, "negative": -1.5 },
-      "takeoff": { "positive": 2.0, "negative": -1.0 },
-      "landing": { "positive": 2.0, "negative": -1.0 }
+      "clean": {
+        "positive": 4.4,
+        "negative": -1.5
+      },
+      "takeoff": {
+        "positive": 2.0,
+        "negative": -1.0
+      },
+      "landing": {
+        "positive": 2.0,
+        "negative": -1.0
+      }
     },
     "aerobatic": {
-      "clean": { "positive": 6.0, "negative": -1.5 },
-      "takeoff": { "positive": 0.0, "negative": -1.0 },
-      "landing": { "positive": 0.0, "negative": -1.0 }
+      "clean": {
+        "positive": 6.0,
+        "negative": -1.5
+      },
+      "takeoff": {
+        "positive": 0.0,
+        "negative": -1.0
+      },
+      "landing": {
+        "positive": 0.0,
+        "negative": -1.0
+      }
     }
   },
   "stall_speeds": {
     "clean": {
-      "weights": [2800, 3200, 3600],
-      "speeds": [70, 75, 79]
+      "weights": [
+        2800,
+        3200,
+        3600
+      ],
+      "speeds": [
+        61,
+        65,
+        69
+      ]
     },
     "takeoff": {
-      "weights": [2800, 3200, 3600],
-      "speeds": [66, 71, 75]
+      "weights": [
+        2800,
+        3200,
+        3600
+      ],
+      "speeds": [
+        57,
+        62,
+        65
+      ]
     },
     "landing": {
-      "weights": [2800, 3200, 3600],
-      "speeds": [63, 68, 72]
+      "weights": [
+        2800,
+        3200,
+        3600
+      ],
+      "speeds": [
+        55,
+        59,
+        63
+      ]
     }
   },
   "single_engine_limits": {
@@ -57,7 +112,7 @@
       "takeoff_up": 89,
       "landing_down": 86
     },
-    "best_glide": 105,
+    "best_glide": 91,
     "best_glide_ratio": 9.5
   },
   "engine_options": {
@@ -123,11 +178,11 @@
     }
   },
   "max_altitude": 20000,
-  "Vne": 224,
-  "Vno": 185,
+  "Vne": 195,
+  "Vno": 161,
   "Vfe": {
-    "takeoff": 125,
-    "landing": 107
+    "takeoff": 109,
+    "landing": 93
   },
   "CL_max": {
     "clean": 1.4,
@@ -135,19 +190,38 @@
     "landing": 1.8
   },
   "arcs": {
-    "white": [63, 107],
-    "green": [70, 185],
-    "yellow": [185, 224],
-    "red": 224
+    "white": [
+      55,
+      93
+    ],
+    "green": [
+      61,
+      161
+    ],
+    "yellow": [
+      161,
+      195
+    ],
+    "red": 195
   },
   "empty_weight": 2270,
   "max_weight": 3600,
   "seats": 4,
-  "cg_range": [133.01, 142.01],
+  "cg_range": [
+    133.01,
+    142.01
+  ],
   "fuel_capacity_gal": 120,
   "fuel_weight_per_gal": 6.0,
   "prop_thrust_decay": {
     "T_static_factor": 2.6,
-    "V_max_kts": 224
-  }
+    "V_max_kts": 195
+  },
+  "vspeeds_published_units": "MPH",
+  "sources": [
+    {
+      "publication": "Phase 2i unit-canonicalization: MPH \u2192 KIAS (\u00f7 1.15078). Research source: Piper PA-30 Twin Comanche POH (1963-1972). Confidence: medium.",
+      "retrieved": "2026-05-14"
+    }
+  ]
 }
