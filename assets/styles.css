@@ -2983,6 +2983,83 @@ button:hover,
    When viewport height is small (phone landscape, ~360px tall),
    trim chrome aggressively so the chart can breathe.
    ============================================================ */
+/* ============================================================
+   Phase 5AG — Narrow-desktop responsive (768-1024px)
+   This is the awkward range where mobile_layout doesn't trigger
+   (cutoff is 768) but desktop renders cramped. State tiles
+   overflow, slider marks collide, top-bar text wraps. Squeeze the
+   desktop layout to fit while keeping all functionality.
+   ============================================================ */
+@media (max-width: 1024px) and (min-width: 769px) {
+  /* Rail narrower — was 280px */
+  .desktop-shell .main-grid {
+    grid-template-columns: 240px minmax(0, 1fr);
+  }
+
+  /* Top bar: shrink brand + tighten gaps */
+  .desktop-shell .top-strip-row {
+    padding: 0 8px;
+  }
+  .desktop-shell .top-strip-brand {
+    font-size: 13px;
+    margin-right: 4px;
+  }
+  .desktop-shell .top-strip-quicklinks {
+    margin-left: 4px;
+    padding-left: 6px;
+    gap: 6px;
+  }
+  .desktop-shell .top-strip-quicklinks .quick-link {
+    font-size: 10px;
+  }
+  .desktop-shell .units-control {
+    margin: 0 2px;
+  }
+  .desktop-shell .aircraft-picker-wrap {
+    width: 200px;
+    min-width: 180px;
+  }
+  .desktop-shell .theme-toggle-group .theme-btn,
+  .desktop-shell .export-toggle-group .export-btn {
+    padding: 0 8px;
+    font-size: 11px;
+  }
+
+  /* State tiles row: horizontal scroll, no wrap */
+  .desktop-shell .top-strip-tiles-row {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .desktop-shell .state-panel-strip {
+    flex-wrap: nowrap;
+  }
+
+  /* Rail control rows: tighter slider marks */
+  .desktop-shell .rail-atmosphere .rc-slider-mark-text,
+  .desktop-shell .rail-live-controls .rc-slider-mark-text {
+    font-size: 8.5px !important;
+  }
+  .desktop-shell .rail-control-label {
+    font-size: 9.5px;
+  }
+  .desktop-shell .rail-atmosphere,
+  .desktop-shell .rail-live-controls {
+    padding: 6px 8px;
+  }
+
+  /* Chart tabs row: keep slim */
+  .desktop-shell .chart-tabs {
+    padding: 4px 8px;
+    gap: 4px;
+  }
+  .desktop-shell .chart-tab {
+    height: 28px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+}
+
+/* Phase 5AF-3 — Short-viewport / landscape mobile compactness */
 @media (max-height: 500px) {
   .mobile-top-bar {
     padding: 4px 8px;
