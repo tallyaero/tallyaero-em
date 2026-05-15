@@ -25,6 +25,18 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Resolve symlinks (Windows checkout doesn't follow them)
+        shell: pwsh
+        # MUST run BEFORE setup-python — the cache step stats the project
+        # tree and chokes on Windows-broken symlinks. Git on Windows checks
+        # out symlinks as TEXT FILES whose body is the link target; we
+        # replace them with real directory copies from _data/.
+        run: |
+          Remove-Item aircraft_data, airports -Force -ErrorAction SilentlyContinue
+          Copy-Item _data/aircraft_data -Destination aircraft_data -Recurse
+          Copy-Item _data/airports      -Destination airports      -Recurse
+          Write-Host "aircraft_data has $(Get-ChildItem aircraft_data -Filter *.json | Measure-Object).Count JSONs"
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -37,16 +49,6 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
           python -m pip install pyinstaller
-
-      - name: Resolve symlinks (Windows can't follow them)
-        shell: pwsh
-        run: |
-          # _data submodule contents are linked via Unix symlinks on macOS.
-          # On Windows we replace the symlinks with direct copies so the
-          # spec's "_data/aircraft_data" path resolves cleanly.
-          Remove-Item aircraft_data, airports -Force -ErrorAction SilentlyContinue
-          Copy-Item _data/aircraft_data -Destination aircraft_data -Recurse
-          Copy-Item _data/airports      -Destination airports      -Recurse
 
       - name: Build with PyInstaller
         shell: pwsh
