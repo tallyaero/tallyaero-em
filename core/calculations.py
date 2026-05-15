@@ -40,13 +40,31 @@ def compute_cl(weight, load_factor, q, wing_area, cl_max):
     return min(CL, cl_max)
 
 
-def compute_cd(CD0, CL, AR, e, cg_drag_factor=1.0, gear_drag_factor=1.0):
+def compute_cd(CD0, CL, AR, e, cg_drag_factor=1.0, gear_drag_factor=1.0, *,
+               cd_rise=None):
     """
-    CD = (CD0 + CL^2 / (pi * AR * e)) * CG_factor * gear_factor
+    CD = (CD0 + induced + rise) * CG_factor * gear_factor
+
+    Where:
+        induced = CL² / (π · AR · e)        — pure parabolic polar
+        rise    = k · max(0, CL - CL₀)²     — high-CL drag rise (optional)
+
+    Phase 2g: `cd_rise` is an optional per-aircraft dict
+    `{"cl_threshold": X, "k_rise": Y}` that models the super-parabolic
+    drag rise near stall (flow separation tip effects). Important for
+    accurate Ps in steep turns and high-AOA flight. When unset, the
+    polar is purely parabolic (the legacy behavior).
     """
     induced = (CL ** 2) / (math.pi * AR * e)
-    CD = (CD0 + induced) * cg_drag_factor * gear_drag_factor
-    return CD
+    CD = CD0 + induced
+    if cd_rise:
+        cl_threshold = cd_rise.get("cl_threshold")
+        k_rise       = cd_rise.get("k_rise", 0.0)
+        if cl_threshold is not None and k_rise:
+            # np.maximum works on scalars + arrays, so this stays vectorized
+            excess = np.maximum(0.0, np.asarray(CL) - cl_threshold)
+            CD = CD + k_rise * excess ** 2
+    return CD * cg_drag_factor * gear_drag_factor
 
 
 def compute_drag(q, wing_area, CD):

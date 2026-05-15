@@ -205,6 +205,10 @@ class Aircraft(BaseModel):
     aspect_ratio: float = Field(..., gt=0)
     CD0: float = Field(..., gt=0)
     e: float = Field(..., gt=0, le=1.0, description="Oswald efficiency")
+    # Phase 2g — optional super-parabolic high-CL drag rise.
+    # When present, CD += k_rise * max(0, CL - cl_threshold)². Models flow
+    # separation drag near stall, important for steep turns / high AOA Ps.
+    cd_rise_above_cl: Optional[Dict[str, float]] = None
 
     # Configuration / limits
     configuration_options: ConfigurationOptions

@@ -287,6 +287,9 @@ def update_graph(
     CD0 = ac.get("CD0", 0.025)
     e = ac.get("e", 0.8)
     AR = ac.get("aspect_ratio", 7.5)
+    # Phase 2g: optional super-parabolic high-CL drag rise.
+    # {"cl_threshold": float, "k_rise": float}. Unset = pure parabolic polar.
+    cd_rise = ac.get("cd_rise_above_cl") or None
 
     # === Environment calculations using OAT and altimeter ===
     # Default values if not provided
@@ -690,7 +693,14 @@ def update_graph(
         q = 0.5 * rho * V**2
         CL = weight * n / (q * wing_area)
         CL_clipped = np.minimum(CL, cl_max)
-        CD = (CD0 + (CL_clipped**2) / (np.pi * e * AR)) * cg_drag_factor * gear_drag_factor
+        CD = (CD0 + (CL_clipped**2) / (np.pi * e * AR))
+        # Phase 2g: super-parabolic rise at high CL (steep turns near stall)
+        if cd_rise:
+            cl_th = cd_rise.get("cl_threshold")
+            k_r   = cd_rise.get("k_rise", 0.0)
+            if cl_th is not None and k_r:
+                CD = CD + k_r * np.maximum(0.0, CL_clipped - cl_th) ** 2
+        CD = CD * cg_drag_factor * gear_drag_factor
         D = q * wing_area * CD
 
         # === Propeller Thrust Decay ===
@@ -1303,7 +1313,14 @@ def update_graph(
             q = 0.5 * rho * v_fps ** 2
             CL_hover = weight * n / (q * wing_area) if q > 0 else 0
             CL_hover = min(CL_hover, cl_max)
-            CD_hover = (CD0 + (CL_hover ** 2) / (np.pi * e * AR)) * cg_drag_factor * gear_drag_factor
+            CD_hover = (CD0 + (CL_hover ** 2) / (np.pi * e * AR))
+            # Phase 2g: super-parabolic high-CL drag rise (steep turns near stall)
+            if cd_rise:
+                cl_th = cd_rise.get("cl_threshold")
+                k_r   = cd_rise.get("k_rise", 0.0)
+                if cl_th is not None and k_r and CL_hover > cl_th:
+                    CD_hover += k_r * (CL_hover - cl_th) ** 2
+            CD_hover = CD_hover * cg_drag_factor * gear_drag_factor
             D_hover = q * wing_area * CD_hover
 
             V_max_kts = ac.get("prop_thrust_decay", {}).get("V_max_kts", 160)
@@ -1632,7 +1649,14 @@ def update_graph(
         q = 0.5 * rho * v_fts ** 2
         CL = weight * n / (q * wing_area)
         CL = min(CL, cl_max)  # Clip to CL_max like Ps grid does
-        CD = (CD0 + (CL ** 2) / (np.pi * e * AR)) * cg_drag_factor * gear_drag_factor
+        CD = (CD0 + (CL ** 2) / (np.pi * e * AR))
+        # Phase 2g: super-parabolic high-CL drag rise (steep turns near stall)
+        if cd_rise:
+            cl_th = cd_rise.get("cl_threshold")
+            k_r   = cd_rise.get("k_rise", 0.0)
+            if cl_th is not None and k_r and CL > cl_th:
+                CD += k_r * (CL - cl_th) ** 2
+        CD = CD * cg_drag_factor * gear_drag_factor
         D = q * wing_area * CD
 
         # Apply prop thrust model (same as Ps logic)

@@ -294,6 +294,10 @@ def _compute_ps_grid(ac, weight_lb, v_grid_kt, h_grid_ft, oat_c, altimeter_inhg,
     ar  = ac.get("aspect_ratio", 7.5)
     cl_max_block = ac.get("CL_max", {})
     cl_max = cl_max_block.get("clean") or 1.4
+    # Phase 2g: optional high-CL drag rise (steep turns near stall)
+    cd_rise = ac.get("cd_rise_above_cl") or None
+    cl_rise_th = cd_rise.get("cl_threshold") if cd_rise else None
+    k_rise     = cd_rise.get("k_rise", 0.0) if cd_rise else 0.0
 
     # Engine + prop
     engines = ac.get("engine_options", {}) or {}
@@ -336,7 +340,11 @@ def _compute_ps_grid(ac, weight_lb, v_grid_kt, h_grid_ft, oat_c, altimeter_inhg,
             q = 0.5 * rho * V_fps * V_fps                       # dynamic pressure
             # Lift coefficient at n=1, then induced drag
             cl = min(weight_lb / (q * wing_area), cl_max) if q > 0 else 0
-            cd = (cd0 + (cl * cl) / (math.pi * ar * e)) * prop_drag_factor
+            cd = cd0 + (cl * cl) / (math.pi * ar * e)
+            # Phase 2g: super-parabolic rise above CL threshold
+            if cl_rise_th is not None and k_rise and cl > cl_rise_th:
+                cd += k_rise * (cl - cl_rise_th) ** 2
+            cd = cd * prop_drag_factor
             D = q * wing_area * cd
             # Thrust available at this V (engine power scales with density)
             density_ratio = rho / 0.002378
