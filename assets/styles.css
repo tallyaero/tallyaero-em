@@ -1706,7 +1706,9 @@ button:hover,
 
 .desktop-shell .main-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
+  /* Phase 5AD: rail on the LEFT now. First column = rail (280px),
+     second column = chart (flexible). */
+  grid-template-columns: 280px minmax(0, 1fr);
   flex: 1 1 0;
   min-height: 0;
   overflow: hidden;
@@ -1741,7 +1743,10 @@ button:hover,
   flex-direction: column;
   min-width: 0;
   padding: 12px 12px 16px;
-  border-left: 1px solid var(--ta-border, var(--ta-surface-tertiary));
+  /* Phase 5AD: rail moved to the left side. Border is now on the right edge
+     (between rail and chart). Class name kept as `right-rail` for now since
+     several stylesheet rules reference it; can be renamed in a follow-up. */
+  border-right: 1px solid var(--ta-border, var(--ta-surface-tertiary));
   background: var(--ta-surface-secondary);
   overflow-y: auto;
   overflow-x: hidden;
@@ -2679,4 +2684,348 @@ button:hover,
 }
 .settings-drawer .accordion-body .rc-slider {
   margin: 6px 4px 20px;
+}
+
+/* ============================================================
+   Phase 5AF — Mobile layout (chart-first, hamburger drawer)
+   ============================================================ */
+
+.mobile-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--ta-surface-primary, #fff);
+}
+
+/* Top bar: hamburger + aircraft picker on one row */
+.mobile-top-bar {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  background: var(--ta-surface-elevated);
+  border-bottom: 1px solid var(--ta-border, var(--ta-surface-tertiary));
+}
+.mobile-top-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.mobile-hamburger {
+  width: 36px;
+  height: 36px;
+  font-size: 20px;
+  line-height: 1;
+  border: 1px solid var(--ta-surface-tertiary, #e5e7eb);
+  background: var(--ta-surface-field, #f3f4f6);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--ta-text-primary);
+  flex: 0 0 auto;
+}
+.mobile-hamburger:active {
+  background: var(--ta-surface-tertiary, #e5e7eb);
+}
+.mobile-aircraft-picker {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* State tiles strip — horizontal scroll on narrow widths */
+.mobile-state-tiles-wrap {
+  flex: 0 0 auto;
+  padding: 6px 8px;
+  background: var(--ta-surface-elevated);
+  border-bottom: 1px solid var(--ta-border-subtle, var(--ta-surface-tertiary));
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.mobile-state-strip {
+  flex-wrap: nowrap !important;   /* horizontal scroll on mobile, no wrap */
+}
+
+/* Chart tabs (Doghouse / Energy) — fill row */
+.mobile-chart-tabs {
+  flex: 0 0 auto;
+  padding: 4px 8px;
+  background: var(--ta-surface-elevated);
+  border-bottom: 1px solid var(--ta-border-subtle, var(--ta-surface-tertiary));
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+}
+.mobile-chart-tabs .chart-tab {
+  flex: 1 1 auto;
+  justify-content: center;
+}
+
+/* Chart container — the hero. Takes all remaining vertical space. */
+.mobile-graph-container {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--ta-surface-primary);
+}
+.mobile-graph {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100% !important;        /* override inline 60vh from layout */
+}
+
+/* Bottom toolbar (PNG/PDF + quick links) */
+.mobile-bottom-bar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--ta-surface-elevated);
+  border-top: 1px solid var(--ta-border-subtle, var(--ta-surface-tertiary));
+  font-size: 11px;
+}
+.mobile-bottom-bar .btn-export-sm {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 11px;
+  border: 1px solid var(--ta-surface-tertiary, #e5e7eb);
+  background: var(--ta-surface-field, #f3f4f6);
+  color: var(--ta-text-primary);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.mobile-quick {
+  font-size: 11px;
+}
+
+.mobile-legal {
+  flex: 0 0 auto;
+  padding: 4px 12px 8px;
+  font-size: 10px;
+  text-align: center;
+  background: var(--ta-surface-primary);
+  color: var(--ta-text-secondary, #6b7280);
+}
+.mobile-legal .legal-link-sm {
+  color: var(--ta-text-secondary, #6b7280);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/* Settings drawer (offcanvas) — slides from the left, mobile-friendly width */
+.mobile-settings-drawer.offcanvas-start {
+  width: min(85vw, 360px) !important;
+}
+.mobile-settings-drawer .mobile-section-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ta-text-secondary, #6b7280);
+  margin: 12px 0 6px;
+}
+.mobile-settings-drawer .input-label-sm {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ta-text-secondary, #6b7280);
+  margin-bottom: 4px;
+  display: block;
+}
+.mobile-settings-drawer .rc-slider {
+  margin: 8px 4px 22px;            /* clearance for tooltip-bottom */
+}
+.mobile-settings-drawer .dropdown {
+  font-size: 13px;
+}
+.mobile-settings-drawer .input-small {
+  height: 34px;
+  font-size: 13px;
+  padding: 4px 10px;
+}
+
+/* Mobile-state tiles use the same inline chip pattern as desktop, just
+   without the .desktop-shell scope. Mirror the key rules here. */
+.state-panel-strip {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  align-items: center;
+}
+.state-panel-strip .state-card {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 6px;
+  padding: 3px 9px;
+  background: var(--ta-surface-secondary, #f8fafc);
+  border: 1px solid var(--ta-border-subtle, var(--ta-surface-tertiary));
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.state-panel-strip .state-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ta-text-tertiary, var(--ta-text-secondary));
+}
+.state-panel-strip .state-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ta-text-primary);
+  font-family: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+/* ============================================================
+   Phase 5AF-2 — un-scope chip + dropdown styling so mobile gets it
+   ============================================================ */
+
+/* Base chip styling — works inside .desktop-shell, .mobile-container,
+   .settings-drawer, .mobile-settings-drawer. The .desktop-shell rule
+   above still adds desktop-only refinements; this is the common base. */
+.env-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 10px;
+  background: var(--ta-surface-field, #f3f4f6);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--ta-text-primary, #1f2937);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+  white-space: nowrap;
+  font-family: inherit;
+  text-decoration: none;
+}
+.env-chip:hover {
+  background: var(--ta-surface-tertiary, #e5e7eb);
+  border-color: var(--ta-surface-elevated, #d1d5db);
+}
+.env-chip:focus {
+  outline: none;
+  border-color: var(--ta-brand-blue, #0a47c9);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ta-brand-blue, #0a47c9) 18%, transparent);
+}
+.chip-prefix {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--ta-text-secondary, #6b7280);
+  text-transform: uppercase;
+}
+.chip-label {
+  font-variant-numeric: tabular-nums;
+}
+.chart-tab-active {
+  background: color-mix(in srgb, var(--ta-brand-blue, #0a47c9) 14%, transparent);
+  border-color: color-mix(in srgb, var(--ta-brand-blue, #0a47c9) 50%, transparent);
+  color: var(--ta-brand-blue, #0a47c9);
+}
+
+/* Mobile chart-tabs: keep tabs slim — full-width inside tab row, but
+   limited height (matching desktop chip h=32). Override the
+   "flex: 1 1 auto" stretch but keep auto width if there's space. */
+.mobile-chart-tabs .chart-tab {
+  height: 32px;
+  padding: 0 12px;
+}
+
+/* Mobile / drawer dropdown selected-value pill: kill the blue */
+.mobile-settings-drawer .Select--single > .Select-control .Select-value,
+.mobile-settings-drawer .Select-value,
+.mobile-settings-drawer .Select-value-label,
+.mobile-container .Select-value,
+.mobile-container .Select-value-label,
+.mobile-aircraft-picker .Select-value,
+.mobile-aircraft-picker .Select-value-label {
+  background: transparent !important;
+  color: var(--ta-text-primary, #1f2937) !important;
+}
+.mobile-settings-drawer .Select-control,
+.mobile-container .Select-control {
+  background: var(--ta-surface-primary, #fff);
+  border-color: var(--ta-surface-tertiary, #e5e7eb);
+}
+
+/* Mobile drawer Edit/Create + Load buttons → use chip styling, not
+   Bootstrap primary/secondary. The dbc.Button color="primary" gives
+   the gigantic blue; we override to match the chip aesthetic. */
+.mobile-settings-drawer .btn.btn-primary,
+.mobile-settings-drawer .btn.btn-secondary {
+  background: var(--ta-surface-field, #f3f4f6) !important;
+  border: 1px solid var(--ta-surface-tertiary, #e5e7eb) !important;
+  color: var(--ta-text-primary, #1f2937) !important;
+  height: 36px;
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: none;
+}
+.mobile-settings-drawer .btn.btn-primary:hover,
+.mobile-settings-drawer .btn.btn-secondary:hover {
+  background: var(--ta-surface-tertiary, #e5e7eb) !important;
+}
+
+/* Drawer offcanvas needs the same Bootstrap-button override */
+.settings-drawer .btn.btn-primary,
+.settings-drawer .btn.btn-secondary {
+  background: var(--ta-surface-field, #f3f4f6) !important;
+  border: 1px solid var(--ta-surface-tertiary, #e5e7eb) !important;
+  color: var(--ta-text-primary, #1f2937) !important;
+}
+
+/* ============================================================
+   Phase 5AF-3 — Short-viewport / landscape mobile compactness
+   When viewport height is small (phone landscape, ~360px tall),
+   trim chrome aggressively so the chart can breathe.
+   ============================================================ */
+@media (max-height: 500px) {
+  .mobile-top-bar {
+    padding: 4px 8px;
+  }
+  .mobile-hamburger {
+    width: 32px; height: 32px; font-size: 17px;
+  }
+  /* State tiles strip — keep but ultra-thin */
+  .mobile-state-tiles-wrap {
+    padding: 2px 6px;
+  }
+  .state-panel-strip .state-card {
+    padding: 2px 7px;
+  }
+  .state-panel-strip .state-label {
+    font-size: 8.5px;
+  }
+  .state-panel-strip .state-value {
+    font-size: 11px;
+  }
+  /* Chart tabs — minimal height */
+  .mobile-chart-tabs {
+    padding: 2px 6px;
+  }
+  .mobile-chart-tabs .chart-tab {
+    height: 26px;
+    padding: 0 8px;
+    font-size: 11px;
+  }
+  .mobile-chart-tabs .chip-prefix {
+    font-size: 8px;
+  }
+  /* Hide bottom legal in landscape — keep export buttons */
+  .mobile-legal {
+    display: none;
+  }
+  .mobile-bottom-bar {
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+  .mobile-bottom-bar .btn-export-sm {
+    height: 24px;
+    padding: 0 8px;
+    font-size: 10px;
+  }
 }

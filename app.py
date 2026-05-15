@@ -136,6 +136,14 @@ app.layout = html.Div([
     # drops a probe at (V, ω); we show required bank, G, and turn radius.
     # Stored as {"v_kt": float, "omega_dps": float} or None when cleared.
     dcc.Store(id="doghouse-probe", data=None),
+    # Phase 5AE: chart-tab Store moved here from desktop's chart-tabs row so
+    # mobile (which doesn't render those tabs) can still satisfy callbacks
+    # that read this id. Values: "maneuver" | "hv".
+    dcc.Store(id="chart-tab", data="maneuver"),
+    # Phase 5AE: browser-width Store was a latent missing target —
+    # callbacks/navigation.py writes to it on every URL change but no
+    # Store ever existed. Adding it cleans up the warning surface.
+    dcc.Store(id="browser-width"),
     html.Div(id="page-content"),
     dcc.Download(id="download-aircraft"),
 

@@ -35,18 +35,18 @@ def register(app):
     def toggle_settings_drawer(n_clicks, is_open):
         return not is_open if n_clicks else is_open
 
+    # Phase 5AF: mobile-settings-toggle now drives the offcanvas drawer that
+    # replaced the old in-page collapse. Button label stays "☰" so it reads
+    # as a persistent hamburger; toggling state is via the drawer's own
+    # backdrop / close-button on close.
     @app.callback(
-        [Output("mobile-settings-collapse", "is_open"),
-         Output("mobile-settings-toggle", "children")],
+        Output("mobile-settings-drawer", "is_open"),
         Input("mobile-settings-toggle", "n_clicks"),
-        State("mobile-settings-collapse", "is_open"),
-        prevent_initial_call=True
+        State("mobile-settings-drawer", "is_open"),
+        prevent_initial_call=True,
     )
     def toggle_mobile_settings(n_clicks, is_open):
-        if n_clicks:
-            new_state = not is_open
-            return new_state, "▲" if new_state else "▼"
-        return is_open, "▼"
+        return not bool(is_open) if n_clicks else bool(is_open)
 
     @app.callback(
         Output("overlay-toggle", "data"),

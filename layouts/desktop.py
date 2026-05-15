@@ -727,7 +727,9 @@ def _settings_drawer():
         ],
         id="settings-drawer",
         title="Configuration",
-        placement="end",
+        # Phase 5AD: drawer slides in from the LEFT, same side as its trigger
+        # (the MORE Configure button at the bottom of the left rail).
+        placement="start",
         is_open=False,
         backdrop=True,
         scrollable=True,
@@ -787,8 +789,8 @@ def _chart_area():
                         title="Rutowski 1954 / AFH Ch 4 — altitude vs IAS with constant-energy curves (shortcut: H)",
                         **{"aria-label": "Show energy-map h-V chart"},
                     ),
-                    # Which tab is active (drives both graph visibility + tab styling)
-                    dcc.Store(id="chart-tab", data="maneuver"),
+                    # Phase 5AE: chart-tab Store relocated to app.py so the
+                    # mobile layout can reference it without errors.
 
                     # Phase 5AA-click: Drop-target mode toggle. Default OFF —
                     # clicks on the h-V chart move the current state. When ON,
@@ -906,8 +908,12 @@ def desktop_layout():
             _top_strip(),
             html.Div(
                 [
-                    _chart_area(),
+                    # Phase 5AD: rail moved to the LEFT so the set-then-see
+                    # reading order aligns with the aircraft picker (top-left)
+                    # and chart-tabs (top-left of the chart row). HTML order
+                    # leads with rail; CSS grid widths match.
                     _right_rail(),
+                    _chart_area(),
                 ],
                 className="main-grid",
             ),
